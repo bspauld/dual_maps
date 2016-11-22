@@ -1,0 +1,179 @@
+<!--
+Code Adapted from the following sites:
+
+Dual Linked Maps, linked geocoder, toggle kmls and much more adapted from previous work on:
+http://www.gisdoctor.com
+
+Other inspiration goes to
+
+mike williams
+google maps api discussion board
+
+Code is freely available for users and developers.  Make it better if you can!
+
+Benjamin Spaulding, Ph.D. www.gisdoctor.com
+
+-->
+ 
+<html> 
+<head> 
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/> 
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/> 
+<title>Dual Linked Maps - Google Maps V3</title> 
+
+<script src="http://maps.google.com/maps?file=api&amp;v=3&amp;key=ABQIAAAAZayeFes7LfpQuCEpjgcrnxQoDgDKWEm0nXgjAhQghs-QBZx6WxSMe_HIlvS_PrEM0Zl20DKHP6-Csg" type="text/javascript"></script> 
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> 
+
+  
+<script type="text/javascript">
+    //setting up the dual maps
+    var mapA;
+    var mapB;
+
+  
+    function initialize() {
+        geocoder = new google.maps.Geocoder();
+        //Set the center of the map
+		
+        var mapcenter = new google.maps.LatLng(42.2, -71.5);
+
+        var mapA_setup = {
+            zoom: 8,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            disableDefaultUI: true,
+            MapTypeControl: true,
+            mapTypeControlOptions: { style: google.maps.MapTypeControlStyle.DROPDOWN_MENU },
+            navigationControl: true,
+            navigationControlOptions: { style: google.maps.NavigationControlStyle.ZOOM_PAN },
+            backgroundColor: 'White',
+            panControl: false,
+            zoomControl: true,
+            streetViewControl: true,
+            zoomControlOptions: {style: google.maps.ZoomControlStyle.SMALL},
+            scrollwheel: true,
+            maxZoom: 10,
+            minZoom: 8,
+            scaleControl: true,
+            center: mapcenter
+        }
+
+        var mapB_setup = {
+            zoom: 8,
+            mapTypeId: google.maps.MapTypeId.SATELLITE,
+            disableDefaultUI: true,
+            MapTypeControl: true,
+            mapTypeControlOptions: { style: google.maps.MapTypeControlStyle.DROPDOWN_MENU },
+            navigationControl: true,
+            navigationControlOptions: { style: google.maps.NavigationControlStyle.ZOOM_PAN },
+            backgroundColor: 'White',
+            panControl: false,
+            zoomControl: true,
+            streetViewControl: true,
+            zoomControlOptions: {style: google.maps.ZoomControlStyle.SMALL},
+            scrollwheel: true,
+            maxZoom: 10,
+            minZoom: 8,
+            scaleControl: true,
+            center: mapcenter
+        }
+
+    mapA = new google.maps.Map(document.getElementById("mapA"), mapA_setup);
+    mapB = new google.maps.Map(document.getElementById("mapB"), mapB_setup);
+       
+  
+   //Create the event listener to track the actions of one map and mimic on the other.  
+   
+    google.maps.event.addListener(mapA, 'drag', MoveA);
+    google.maps.event.addListener(mapB, 'drag', MoveB);
+    google.maps.event.addListener(mapA, 'zoom_changed', zoomA);
+    google.maps.event.addListener(mapB, 'zoom_changed', zoomB);
+    
+     var popLayer = new google.maps.KmlLayer('http://www.gisdoctor.com/data/mass_pop_trans.kmz', { preserveViewport: true });
+        popLayer.setMap(mapA);
+        
+    var popchLayer = new google.maps.KmlLayer('http://www.gisdoctor.com/data/mass_per_change_tran.kmz', { preserveViewport: true });
+        popchLayer.setMap(mapB);
+        
+    
+}
+
+  /* 
+  
+  Map Function
+ 
+  The following section includes the functions the provide the action on the map.  This section is standardized and will not need to be changed by the user to 
+  create new maps
+ 
+  */
+  
+ // ====== Handle the Map movements ======
+      
+      // Variables that log whether we are currently causing the maps to be moved
+      var mapA_moving = 0;
+      var mapB_moving = 0;
+ 
+      // This function handles what happens when MapA moves
+      // If we arent moving it (i.e. if the user is moving it) move MapB to match
+      function MoveA(){
+        mapB_moving = true;
+	  if (mapA_moving == false) {
+	  mapB.setCenter(mapA.getCenter());
+	  }
+	  mapB_moving = false;
+      }
+      
+      // This function handles what happens when the MapB moves
+      // If we arent moving it (i.e. if the user is moving it) move MapA to match
+ 
+      function MoveB(){
+        mapA_moving = true;
+	  if (mapB_moving == false) {
+	  mapA.setCenter(mapB.getCenter());
+	  }
+	  mapA_moving = false;
+      }
+    
+       
+  //==========Sync Map Zoom ===========
+  // Variables that log whether we are currently causing the maps to be zoomed
+        var mapA_zoom = 0;
+        var mapB_zoom = 0;
+ 
+ // This function handles what happens when MapA moves
+      // If we arent moving it (i.e. if the user is moving it) move MapB to match
+      function zoomA(){
+        mapB_zoom = true;
+	  if (mapA_zoom == false) {
+	  mapB.setZoom(mapA.getZoom());
+	  }
+	  mapB_zoom = false;
+      }
+      
+      // This function handles what happens when the MapB moves
+      // If we arent moving it (i.e. if the user is moving it) move MapA to match
+ 
+      function zoomB(){
+        mapA_zoom = true;
+	  if (mapB_zoom == false) {
+	  mapA.setZoom(mapB.getZoom());
+	  }
+	  mapA_zoom = false;
+      }
+      
+
+
+  
+</script> 
+ 
+</head> 
+<body style="margin:0px; padding:3px; font-family:Arial" onload="initialize()"> 
+
+<div style="position:absolute; top:5px; height:100%; width:100%">
+<div id="mapA" style="position:absolute;width:100%; height:50%;top:0%;"></div> 
+<div id="mapB" style="position:absolute;width:100%; height:50%;top:50.25%;"></div> 
+
+</div>
+
+
+</body> 
+</html> 
